@@ -314,8 +314,10 @@ int engine_blit(int srcFenceFd)
 void checkGlError(const char *file, int line)
 //-----------------------------------------------------------------------------
 {
-  for (GLint error = glGetError(); error; error = glGetError()) {
-    const char *pError = "<unknown error>";
+  GLint error = glGetError();
+  while (error !=  GL_NO_ERROR) {
+    error = glGetError();
+    char *pError = nullptr;
     switch (error) {
       case GL_NO_ERROR:
         pError = "GL_NO_ERROR";
@@ -335,6 +337,10 @@ void checkGlError(const char *file, int line)
       case GL_INVALID_FRAMEBUFFER_OPERATION:
         pError = "GL_INVALID_FRAMEBUFFER_OPERATION";
         break;
+
+      default:
+        ALOGE("glError (0x%x) %s:%d\n", error, file, line);
+        break;
     }
 
     ALOGE("glError (%s) %s:%d\n", pError, file, line);
@@ -351,7 +357,7 @@ void checkEglError(const char *file, int line)
       break;
     }
 
-    const char *pError = "<unknown error>";
+    char *pError = nullptr;
     switch (error) {
       case EGL_SUCCESS:
         pError = "EGL_SUCCESS";
